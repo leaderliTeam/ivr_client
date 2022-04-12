@@ -6,7 +6,7 @@ public class OutputProtocol {
 
     private String callid;
 
-    private List<OutputSingle> outputList;
+    private List<OutputCell> outputList;
 
     public String getCallid() {
         return callid;
@@ -16,11 +16,11 @@ public class OutputProtocol {
         this.callid = callid;
     }
 
-    public List<OutputSingle> getOutputList() {
+    public List<OutputCell> getOutputList() {
         return outputList;
     }
 
-    public void setOutputList(List<OutputSingle> outputList) {
+    public void setOutputList(List<OutputCell> outputList) {
         this.outputList = outputList;
     }
 

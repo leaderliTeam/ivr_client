@@ -1,6 +1,6 @@
 package com.pccc.sip.ivrclient.bean;
 
-public class OutputSingle {
+public class OutputCell {
 
     private String type;
 
