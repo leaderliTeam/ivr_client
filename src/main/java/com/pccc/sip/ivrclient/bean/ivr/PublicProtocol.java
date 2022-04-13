@@ -1,5 +1,7 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
+import java.util.Map;
+
 public class PublicProtocol {
     /**
      * 一通会话的唯一标识
@@ -39,5 +41,9 @@ public class PublicProtocol {
 
     public void setSeq(String seq) {
         this.seq = seq;
+    }
+
+    public Map<String,Object> packageRequest(String type) {
+        return null;
     }
 }
