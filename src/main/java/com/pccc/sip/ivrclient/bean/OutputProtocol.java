@@ -1,12 +1,13 @@
 package com.pccc.sip.ivrclient.bean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OutputProtocol {
 
     private String callid;
 
-    private List<OutputCell> outputList;
+    private List<OutputCell> output = new ArrayList<>();
 
     public String getCallid() {
         return callid;
@@ -16,19 +17,11 @@ public class OutputProtocol {
         this.callid = callid;
     }
 
-    public List<OutputCell> getOutputList() {
-        return outputList;
+    public List<OutputCell> getOutput() {
+        return output;
     }
 
-    public void setOutputList(List<OutputCell> outputList) {
-        this.outputList = outputList;
-    }
-
-    @Override
-    public String toString() {
-        return "OutputProtocol{" +
-                "callid='" + callid + '\'' +
-                ", outputList=" + outputList +
-                '}';
+    public void setOutput(List<OutputCell> output) {
+        this.output = output;
     }
 }

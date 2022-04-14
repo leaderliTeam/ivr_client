@@ -43,7 +43,7 @@ public class PublicProtocol {
         this.seq = seq;
     }
 
-    public Map<String,Object> packageRequest(String type) {
+    public Map<String,Object> packageRequest() {
         return null;
     }
 }

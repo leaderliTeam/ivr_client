@@ -1,11 +1,15 @@
 package com.pccc.sip.ivrclient.core;
 
 import com.pccc.sip.ivrclient.bean.InputProtocol;
+import com.pccc.sip.ivrclient.bean.OutputCell;
 import com.pccc.sip.ivrclient.bean.OutputProtocol;
 import com.pccc.sip.ivrclient.bean.SessionData;
+import com.pccc.sip.ivrclient.common.Response;
 import com.pccc.sip.ivrclient.constant.ProtocolConstant;
-import com.pccc.sip.ivrclient.util.HttpUtil;
-import io.leaderli.litil.meta.Lino;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.validation.constraints.NotNull;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CoreService {
 
@@ -17,23 +21,58 @@ public class CoreService {
      * 5.遇到终止事件时，将这一通会话结束并删除相应的缓存
      */
 
-    public OutputProtocol launch(InputProtocol inputProtocol) {
-        String callId = Lino.of(inputProtocol).map(InputProtocol::getCallid).get();
+    public Response<OutputProtocol> launch(@NotNull InputProtocol inputProtocol) {
+
+        if (StringUtils.isBlank(inputProtocol.getCallid())) {
+            SessionData sessionData = initSessionData(inputProtocol);
+            DataCache.SESSION_MAP.put(sessionData.getCallid(),sessionData);
+        }
         return null;
+    }
+
+    public SessionData initSessionData(InputProtocol inputProtocol) {
+        String callId = "000000" + System.nanoTime();
+        OutputProtocol outputProtocol = new OutputProtocol();
+        outputProtocol.setCallid(callId);
+        OutputCell outputCell = new OutputCell();
+        outputCell.setType(ProtocolConstant.START);
+        outputCell.setValue(inputProtocol.getValue());
+        outputProtocol.getOutput().add(outputCell);
+        return SessionData.builder().callid(callId).type(ProtocolConstant.START).seq("0").request(inputProtocol).response(outputProtocol).build();
+    }
+
+    public SessionData resetSessionData(InputProtocol inputProtocol) {
+        SessionData sessionData = DataCache.SESSION_MAP.get(inputProtocol.getCallid());
+        sessionData.setRequest(inputProtocol);
+        return sessionData;
     }
 
     public OutputProtocol interaction(SessionData session) {
         boolean flag = true;
+        OutputProtocol outputProtocol = session.getResponse();
+
         while (flag) {
             switch (session.getType()) {
                 case ProtocolConstant.START:
 //                    HttpUtil.postForSip()
+                case ProtocolConstant.BARGIN:
+                case ProtocolConstant.PLAY:
+                case ProtocolConstant.HOLD:
+                case ProtocolConstant.REDIRECT:
+                case ProtocolConstant.RECORD:
+                case ProtocolConstant.TRANSFER:
+                    break;
+                case ProtocolConstant.INPUT:
+                case ProtocolConstant.SELECT:
+                case ProtocolConstant.ASR:
+                    flag = false;
+                    break;
                 case ProtocolConstant.EVENT:
                     flag = false;
                     break;
             }
         }
-        return null;
+        return outputProtocol;
     }
 
     /**
@@ -44,5 +83,10 @@ public class CoreService {
      */
     public String fetchMenuSeq(String callId, String flowCode) {
         return null;
+    }
+
+    public String seqIncrease(SessionData sessionData) {
+        AtomicInteger atomicInteger = new AtomicInteger(Integer.parseInt(sessionData.getSeq()));
+        return String.valueOf(atomicInteger.incrementAndGet());
     }
 }
