@@ -1,8 +1,10 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
+import com.pccc.sip.ivrclient.bean.SessionData;
+
 import java.util.Map;
 
-public class PublicProtocol {
+public class PublicProtocol implements IProtocol{
     /**
      * 一通会话的唯一标识
      */
@@ -43,7 +45,9 @@ public class PublicProtocol {
         this.seq = seq;
     }
 
-    public Map<String,Object> packageRequest() {
+
+    @Override
+    public Map<String, Object> packageRequest(SessionData session) {
         return null;
     }
 }

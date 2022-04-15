@@ -4,19 +4,12 @@ import com.pccc.sip.ivrclient.bean.SessionData;
 
 import java.util.Map;
 
-public class AsrProtocol implements IProtocol{
+public class SelectProtocol implements IProtocol{
 
     private String interdigittimeout;
 
-    private String dtmf;
-
     private String value;
 
-    /**
-     * normal
-     * noinput
-     * nomatch
-     */
     private String state;
 
     public String getInterdigittimeout() {
@@ -25,14 +18,6 @@ public class AsrProtocol implements IProtocol{
 
     public void setInterdigittimeout(String interdigittimeout) {
         this.interdigittimeout = interdigittimeout;
-    }
-
-    public String getDtmf() {
-        return dtmf;
-    }
-
-    public void setDtmf(String dtmf) {
-        this.dtmf = dtmf;
     }
 
     public String getValue() {

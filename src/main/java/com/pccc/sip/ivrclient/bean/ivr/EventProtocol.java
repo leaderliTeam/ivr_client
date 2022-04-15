@@ -1,6 +1,10 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
-public class EventProtocol {
+import com.pccc.sip.ivrclient.bean.SessionData;
+
+import java.util.Map;
+
+public class EventProtocol implements IProtocol{
 
     private String name;
 
@@ -39,5 +43,10 @@ public class EventProtocol {
                 ", param='" + param + '\'' +
                 ", priority='" + priority + '\'' +
                 '}';
+    }
+
+    @Override
+    public Map<String, Object> packageRequest(SessionData session) {
+        return null;
     }
 }

@@ -1,6 +1,11 @@
 package com.pccc.sip.ivrclient.bean;
 
-public class InputProtocol {
+import com.pccc.sip.ivrclient.bean.ivr.IProtocol;
+
+import java.util.List;
+import java.util.Map;
+
+public class InputProtocol implements IProtocol {
 
     private String callid;
 
@@ -8,7 +13,7 @@ public class InputProtocol {
 
     private String dnis;
 
-    private String value;
+    private List<String> value;
 
     public String getCallid() {
         return callid;
@@ -34,21 +39,16 @@ public class InputProtocol {
         this.dnis = dnis;
     }
 
-    public String getValue() {
+    public List<String> getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(List<String> value) {
         this.value = value;
     }
 
     @Override
-    public String toString() {
-        return "InputProtocol{" +
-                "callid='" + callid + '\'' +
-                ", ani='" + ani + '\'' +
-                ", dnis='" + dnis + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+    public Map<String, Object> packageRequest(SessionData session) {
+        return null;
     }
 }

@@ -1,6 +1,10 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
-public class StartProtocol {
+import com.pccc.sip.ivrclient.bean.SessionData;
+
+import java.util.Map;
+
+public class StartProtocol implements IProtocol{
 
     private String ani;
 
@@ -92,4 +96,8 @@ public class StartProtocol {
         this.calldata = calldata;
     }
 
+    @Override
+    public Map<String, Object> packageRequest(SessionData session) {
+        return null;
+    }
 }

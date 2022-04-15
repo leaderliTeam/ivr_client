@@ -9,6 +9,18 @@ public class OutputProtocol {
 
     private List<OutputCell> output = new ArrayList<>();
 
+    public OutputProtocol() {
+    }
+
+    public OutputProtocol(String callid) {
+        this.callid = callid;
+    }
+
+    public OutputProtocol(String callid, List<OutputCell> output) {
+        this.callid = callid;
+        this.output = output;
+    }
+
     public String getCallid() {
         return callid;
     }
@@ -23,5 +35,9 @@ public class OutputProtocol {
 
     public void setOutput(List<OutputCell> output) {
         this.output = output;
+    }
+
+    public void add(OutputCell cell) {
+        this.output.add(cell);
     }
 }

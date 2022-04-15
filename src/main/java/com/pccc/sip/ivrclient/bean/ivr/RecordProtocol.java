@@ -1,6 +1,10 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
-public class RecordProtocol {
+import com.pccc.sip.ivrclient.bean.SessionData;
+
+import java.util.Map;
+
+public class RecordProtocol implements IProtocol{
 
     private boolean beep;
 
@@ -70,5 +74,10 @@ public class RecordProtocol {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Override
+    public Map<String, Object> packageRequest(SessionData session) {
+        return null;
     }
 }

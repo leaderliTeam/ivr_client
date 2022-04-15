@@ -8,14 +8,17 @@ public class SessionData {
 
     private String seq;
 
+    private String next;
+
     private InputProtocol request;
 
     private OutputProtocol response;
 
-    private SessionData(String callid, String type, String seq, InputProtocol request, OutputProtocol response) {
+    private SessionData(String callid, String type, String seq, String next, InputProtocol request, OutputProtocol response) {
         this.callid = callid;
         this.type = type;
         this.seq = seq;
+        this.next = next;
         this.request = request;
         this.response = response;
     }
@@ -66,6 +69,7 @@ public class SessionData {
                 "callid='" + callid + '\'' +
                 ", type='" + type + '\'' +
                 ", seq='" + seq + '\'' +
+                ", next='" + next + '\'' +
                 ", request=" + request +
                 ", response=" + response +
                 '}';
@@ -76,15 +80,20 @@ public class SessionData {
     }
 
     public static class Builder {
-        private String callid;
+
+        private static final String CALL_ID_PREFIX = "000000";
+
+        private String callid = CALL_ID_PREFIX + System.nanoTime();
 
         private String type;
 
-        private String seq;
+        private String seq = "0";
+
+        private String next;
 
         private InputProtocol request;
 
-        private OutputProtocol response;
+        private OutputProtocol response = new OutputProtocol(this.callid);
 
         private Builder() {
         }
@@ -102,17 +111,22 @@ public class SessionData {
             this.seq = seq;
             return this;
         }
+        public Builder next(String next) {
+            this.next = next;
+            return this;
+        }
         public Builder request(InputProtocol request) {
             this.request = request;
             return this;
         }
         public Builder response(OutputProtocol response) {
+            response.setCallid(this.callid);
             this.response = response;
             return this;
         }
 
         public SessionData build() {
-            return new SessionData(callid,type,seq,request,response);
+            return new SessionData(callid,type,seq,next,request,response);
         }
     }
 }
