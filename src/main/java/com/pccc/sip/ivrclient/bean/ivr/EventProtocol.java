@@ -1,10 +1,6 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
-import com.pccc.sip.ivrclient.bean.SessionData;
-
-import java.util.Map;
-
-public class EventProtocol implements IProtocol{
+public class EventProtocol extends AbstractProtocol{
 
     private String name;
 
@@ -45,8 +41,4 @@ public class EventProtocol implements IProtocol{
                 '}';
     }
 
-    @Override
-    public Map<String, Object> packageRequest(SessionData session) {
-        return null;
-    }
 }

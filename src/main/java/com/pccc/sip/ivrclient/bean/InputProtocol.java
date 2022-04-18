@@ -1,11 +1,10 @@
 package com.pccc.sip.ivrclient.bean;
 
-import com.pccc.sip.ivrclient.bean.ivr.IProtocol;
+import com.pccc.sip.ivrclient.bean.ivr.AbstractProtocol;
 
 import java.util.List;
-import java.util.Map;
 
-public class InputProtocol implements IProtocol {
+public class InputProtocol extends AbstractProtocol {
 
     private String callid;
 
@@ -47,8 +46,4 @@ public class InputProtocol implements IProtocol {
         this.value = value;
     }
 
-    @Override
-    public Map<String, Object> packageRequest(SessionData session) {
-        return null;
-    }
 }

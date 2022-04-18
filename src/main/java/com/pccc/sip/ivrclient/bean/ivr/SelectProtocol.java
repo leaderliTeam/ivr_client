@@ -1,10 +1,6 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
-import com.pccc.sip.ivrclient.bean.SessionData;
-
-import java.util.Map;
-
-public class SelectProtocol implements IProtocol{
+public class SelectProtocol extends AbstractProtocol{
 
     private String interdigittimeout;
 
@@ -36,8 +32,4 @@ public class SelectProtocol implements IProtocol{
         this.state = state;
     }
 
-    @Override
-    public Map<String, Object> packageRequest(SessionData session) {
-        return null;
-    }
 }

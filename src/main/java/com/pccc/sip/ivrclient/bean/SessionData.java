@@ -47,6 +47,14 @@ public class SessionData {
         this.seq = seq;
     }
 
+    public String getNext() {
+        return next;
+    }
+
+    public void setNext(String next) {
+        this.next = next;
+    }
+
     public InputProtocol getRequest() {
         return request;
     }

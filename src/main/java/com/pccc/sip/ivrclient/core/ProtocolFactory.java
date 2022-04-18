@@ -6,8 +6,7 @@ import com.pccc.sip.ivrclient.constant.ProtocolConstant;
 
 public class ProtocolFactory {
 
-
-    public static IProtocol createProtocol(String type) {
+    public static AbstractProtocol createProtocol(String type) {
         switch (type) {
             case ProtocolConstant.START:
                 return new StartProtocol();
@@ -21,14 +20,8 @@ public class ProtocolFactory {
                 return new AsrProtocol();
             case ProtocolConstant.RECORD:
                 return new RecordProtocol();
-            case ProtocolConstant.PLAY:
-            case ProtocolConstant.BARGIN:
-            case ProtocolConstant.HOLD:
-            case ProtocolConstant.TRANSFER:
-            case ProtocolConstant.SWITCH_APP:
-            case ProtocolConstant.REDIRECT:
+            default:
                 return new PublicProtocol();
         }
-        return null;
     }
 }

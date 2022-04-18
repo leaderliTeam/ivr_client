@@ -1,10 +1,6 @@
 package com.pccc.sip.ivrclient.bean.ivr;
 
-import com.pccc.sip.ivrclient.bean.SessionData;
-
-import java.util.Map;
-
-public class RecordProtocol implements IProtocol{
+public class RecordProtocol extends AbstractProtocol{
 
     private boolean beep;
 
@@ -76,8 +72,4 @@ public class RecordProtocol implements IProtocol{
         this.url = url;
     }
 
-    @Override
-    public Map<String, Object> packageRequest(SessionData session) {
-        return null;
-    }
 }

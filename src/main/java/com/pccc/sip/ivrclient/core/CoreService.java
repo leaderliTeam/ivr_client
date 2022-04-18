@@ -6,6 +6,7 @@ import com.pccc.sip.ivrclient.bean.OutputProtocol;
 import com.pccc.sip.ivrclient.bean.SessionData;
 import com.pccc.sip.ivrclient.common.Response;
 import com.pccc.sip.ivrclient.constant.ProtocolConstant;
+import com.pccc.sip.ivrclient.util.HttpUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
@@ -27,9 +28,11 @@ public class CoreService {
 
         if (StringUtils.isBlank(inputProtocol.getCallid())) {
             SessionData sessionData = initSessionData(inputProtocol);
-            DataCache.SESSION_MAP.put(sessionData.getCallid(),sessionData);
+            DataCache.SESSION_MAP.put(sessionData.getCallid(), sessionData);
         }
-        return null;
+        SessionData session = DataCache.SESSION_MAP.get(inputProtocol.getCallid());
+        session.setRequest(inputProtocol);
+        return Response.success(coreService(session));
     }
 
     public static SessionData initSessionData(InputProtocol inputProtocol) {
@@ -40,26 +43,31 @@ public class CoreService {
         return SessionData.builder().type(ProtocolConstant.START).request(inputProtocol).build();
     }
 
-    public SessionData resetSessionData(InputProtocol inputProtocol) {
-        SessionData sessionData = DataCache.SESSION_MAP.get(inputProtocol.getCallid());
-        sessionData.setRequest(inputProtocol);
-        return sessionData;
-    }
+//    public SessionData resetSessionData(InputProtocol inputProtocol) {
+//        SessionData sessionData = DataCache.SESSION_MAP.get(inputProtocol.getCallid());
+//        sessionData.setRequest(inputProtocol);
+//        return sessionData;
+//    }
 
     public static OutputProtocol coreService(SessionData session) {
         List<String> values = session.getRequest().getValue();
         for (String value : values) {
-            interaction(value,session);
+            interaction(value, session);
         }
         return session.getResponse();
     }
 
-    public static void interaction(String value,SessionData session) {
+    /**
+     * 与IVR交互逻辑
+     *
+     * @param value
+     * @param session
+     */
+    public static void interaction(String value, SessionData session) {
         boolean flag = true;
         while (flag) {
             switch (session.getType()) {
                 case ProtocolConstant.START:
-//                    HttpUtil.postForSip()
                 case ProtocolConstant.BARGIN:
                 case ProtocolConstant.PLAY:
                 case ProtocolConstant.HOLD:
@@ -67,6 +75,7 @@ public class CoreService {
                 case ProtocolConstant.RECORD:
                 case ProtocolConstant.SWITCH_APP:
                 case ProtocolConstant.TRANSFER:
+                    HttpUtil.postForSip(session.getNext(), ProtocolFactory.createProtocol(session.getType()).packageRequest(session));
                     break;
                 case ProtocolConstant.INPUT:
                 case ProtocolConstant.SELECT:
@@ -74,16 +83,15 @@ public class CoreService {
                     flag = false;
                     break;
                 case ProtocolConstant.EVENT:
-                    System.out.println();
                     break;
             }
         }
     }
 
 
-
     /**
      * 根据功能码去查取本通会话中的动态菜单进入此功能的按键序列，查取不到则本次交互失败。
+     *
      * @param callId
      * @param flowCode
      * @return
@@ -92,8 +100,12 @@ public class CoreService {
         return null;
     }
 
-    public String seqIncrease(SessionData sessionData) {
-        AtomicInteger atomicInteger = new AtomicInteger(Integer.parseInt(sessionData.getSeq()));
+    public static String seqIncrease(SessionData sessionData) {
+        int seq = Integer.parseInt(sessionData.getSeq());
+        if (seq % 2 == 0) {
+            return sessionData.getSeq();
+        }
+        AtomicInteger atomicInteger = new AtomicInteger(seq);
         return String.valueOf(atomicInteger.incrementAndGet());
     }
 }

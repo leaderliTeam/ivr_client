@@ -30,6 +30,10 @@ public class Response<T> {
         return success(responseEnum,null);
     }
 
+    public static <T> Response<T> success(T data) {
+        return success(ResponseEnum.SUCCESS,data);
+    }
+
     public static <T> Response<T> success(ResponseEnum responseEnum,T data) {
         return new Response<>(responseEnum,data);
     }
@@ -41,6 +45,10 @@ public class Response<T> {
 
     public static Response<Void> error(ResponseEnum responseEnum) {
         return success(responseEnum,null);
+    }
+
+    public static <T> Response<T> error(T data) {
+        return success(ResponseEnum.FAIL,data);
     }
 
     public static <T> Response<T> error(ResponseEnum responseEnum,T data) {
