@@ -4,14 +4,19 @@ import com.pccc.sip.ivrclient.bean.InputProtocol;
 import com.pccc.sip.ivrclient.bean.OutputCell;
 import com.pccc.sip.ivrclient.bean.OutputProtocol;
 import com.pccc.sip.ivrclient.bean.SessionData;
+import com.pccc.sip.ivrclient.bean.ivr.PlayProtocol;
 import com.pccc.sip.ivrclient.common.Response;
+import com.pccc.sip.ivrclient.constant.KeyConstant;
 import com.pccc.sip.ivrclient.constant.ProtocolConstant;
+import com.pccc.sip.ivrclient.exception.InteractionException;
+import com.pccc.sip.ivrclient.util.GsonUtil;
 import com.pccc.sip.ivrclient.util.HttpUtil;
+import io.leaderli.litil.collection.LiMapUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CoreService {
@@ -36,23 +41,19 @@ public class CoreService {
     }
 
     public static SessionData initSessionData(InputProtocol inputProtocol) {
-//        OutputCell outputCell = new OutputCell();
-//        outputCell.setType(ProtocolConstant.START);
-//        outputCell.setValue(inputProtocol.getValue());
-//        outputProtocol.getOutput().add(outputCell);
         return SessionData.builder().type(ProtocolConstant.START).request(inputProtocol).build();
     }
 
-//    public SessionData resetSessionData(InputProtocol inputProtocol) {
-//        SessionData sessionData = DataCache.SESSION_MAP.get(inputProtocol.getCallid());
-//        sessionData.setRequest(inputProtocol);
-//        return sessionData;
-//    }
+
 
     public static OutputProtocol coreService(SessionData session) {
         List<String> values = session.getRequest().getValue();
         for (String value : values) {
-            interaction(value, session);
+            if (StringUtils.startsWith(value, KeyConstant.FLOW_CODE)) {
+                dynamicMenuInteraction(value, session);
+            } else {
+                interaction(value, session);
+            }
         }
         return session.getResponse();
     }
@@ -65,17 +66,28 @@ public class CoreService {
      */
     public static void interaction(String value, SessionData session) {
         boolean flag = true;
+        List<OutputCell> output = session.getResponse().getOutput();
+        output.clear();
         while (flag) {
             switch (session.getType()) {
                 case ProtocolConstant.START:
                 case ProtocolConstant.BARGIN:
                 case ProtocolConstant.PLAY:
+                    Map<String, Object> response = HttpUtil.postForSip(session.getNext(), ProtocolFactory.createProtocol(session.getType()).packageRequest(session));
+                    session.setNext(LiMapUtil.getTypeObject(response,KeyConstant.NEXT,String.class).get());
+                    String type = LiMapUtil.getTypeObject(response, KeyConstant.TYPE, String.class).get();
+                    session.setType(type);
+                    PlayProtocol playProtocol = GsonUtil.formJson(LiMapUtil.getTypeObject(response, type, String.class).get(), PlayProtocol.class);
+                    output.addAll(playProtocol.getVoices());
+                    break;
                 case ProtocolConstant.HOLD:
                 case ProtocolConstant.REDIRECT:
                 case ProtocolConstant.RECORD:
                 case ProtocolConstant.SWITCH_APP:
                 case ProtocolConstant.TRANSFER:
-                    HttpUtil.postForSip(session.getNext(), ProtocolFactory.createProtocol(session.getType()).packageRequest(session));
+                    Map<String, Object> response1 = HttpUtil.postForSip(session.getNext(), ProtocolFactory.createProtocol(session.getType()).packageRequest(session));
+                    session.setNext(LiMapUtil.getTypeObject(response1,KeyConstant.NEXT,String.class).get());
+                    output.add(new OutputCell(KeyConstant.VDN,LiMapUtil.getTypeObject(response1,KeyConstant.VDN,String.class).get()));
                     break;
                 case ProtocolConstant.INPUT:
                 case ProtocolConstant.SELECT:
@@ -92,12 +104,22 @@ public class CoreService {
     /**
      * 根据功能码去查取本通会话中的动态菜单进入此功能的按键序列，查取不到则本次交互失败。
      *
-     * @param callId
      * @param flowCode
      * @return
      */
-    public String fetchMenuSeq(String callId, String flowCode) {
+    public static List<String> fetchMenuSeq(String flowCode) {
         return null;
+    }
+
+
+    public static void dynamicMenuInteraction(String flowCode, SessionData session) {
+        List<String> menuSeq = fetchMenuSeq(flowCode);
+        if (menuSeq == null) {
+            throw new InteractionException("未找到可进入此流程的动态菜单，请查看执行案例编写是否正确！");
+        }
+        for (String value : menuSeq) {
+            coreService(session);
+        }
     }
 
     public static String seqIncrease(SessionData sessionData) {
@@ -106,6 +128,7 @@ public class CoreService {
             return sessionData.getSeq();
         }
         AtomicInteger atomicInteger = new AtomicInteger(seq);
-        return String.valueOf(atomicInteger.incrementAndGet());
+        sessionData.setSeq(String.valueOf(atomicInteger.incrementAndGet()));
+        return sessionData.getSeq();
     }
 }
