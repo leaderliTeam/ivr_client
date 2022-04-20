@@ -4,10 +4,12 @@ import com.pccc.sip.ivrclient.bean.InputProtocol;
 import com.pccc.sip.ivrclient.bean.OutputCell;
 import com.pccc.sip.ivrclient.bean.OutputProtocol;
 import com.pccc.sip.ivrclient.bean.SessionData;
+import com.pccc.sip.ivrclient.bean.ivr.EventProtocol;
 import com.pccc.sip.ivrclient.bean.ivr.PlayProtocol;
 import com.pccc.sip.ivrclient.common.Response;
 import com.pccc.sip.ivrclient.constant.KeyConstant;
 import com.pccc.sip.ivrclient.constant.ProtocolConstant;
+import com.pccc.sip.ivrclient.exception.EventException;
 import com.pccc.sip.ivrclient.exception.InteractionException;
 import com.pccc.sip.ivrclient.util.GsonUtil;
 import com.pccc.sip.ivrclient.util.HttpUtil;
@@ -64,40 +66,39 @@ public class CoreService {
      * @param value
      * @param session
      */
-    public static void interaction(String value, SessionData session) {
+    public static void interaction(String value, SessionData session) throws InteractionException{
         boolean flag = true;
         List<OutputCell> output = session.getResponse().getOutput();
         output.clear();
         while (flag) {
+            Map<String, Object> response = responseHandle(session);
             switch (session.getType()) {
-                case ProtocolConstant.START:
-                case ProtocolConstant.BARGIN:
-                case ProtocolConstant.PLAY:
-                    Map<String, Object> response = HttpUtil.postForSip(session.getNext(), ProtocolFactory.createProtocol(session.getType()).packageRequest(session));
-                    session.setNext(LiMapUtil.getTypeObject(response,KeyConstant.NEXT,String.class).get());
-                    String type = LiMapUtil.getTypeObject(response, KeyConstant.TYPE, String.class).get();
-                    session.setType(type);
-                    PlayProtocol playProtocol = GsonUtil.formJson(LiMapUtil.getTypeObject(response, type, String.class).get(), PlayProtocol.class);
-                    output.addAll(playProtocol.getVoices());
-                    break;
-                case ProtocolConstant.HOLD:
-                case ProtocolConstant.REDIRECT:
-                case ProtocolConstant.RECORD:
-                case ProtocolConstant.SWITCH_APP:
-                case ProtocolConstant.TRANSFER:
-                    Map<String, Object> response1 = HttpUtil.postForSip(session.getNext(), ProtocolFactory.createProtocol(session.getType()).packageRequest(session));
-                    session.setNext(LiMapUtil.getTypeObject(response1,KeyConstant.NEXT,String.class).get());
-                    output.add(new OutputCell(KeyConstant.VDN,LiMapUtil.getTypeObject(response1,KeyConstant.VDN,String.class).get()));
-                    break;
                 case ProtocolConstant.INPUT:
                 case ProtocolConstant.SELECT:
                 case ProtocolConstant.ASR:
                     flag = false;
                     break;
-                case ProtocolConstant.EVENT:
+                case ProtocolConstant.BARGIN:
+                case ProtocolConstant.PLAY:
+                case ProtocolConstant.TRANSFER:
                     break;
+                case ProtocolConstant.HOLD:
+                case ProtocolConstant.REDIRECT:
+                case ProtocolConstant.RECORD:
+                case ProtocolConstant.SWITCH_APP:
+                    break;
+                case ProtocolConstant.EVENT:
+                    throw new EventException(LiMapUtil.getTypeObject(response,ProtocolConstant.EVENT, EventProtocol.class).get());
             }
         }
+    }
+
+    public static Map<String, Object> responseHandle(SessionData session) {
+        Map<String, Object> response = HttpUtil.postForSip(session.getNext(), ProtocolFactory.createProtocol(session.getType()).packageRequest(session));
+        session.setNext(LiMapUtil.getTypeObject(response,KeyConstant.NEXT,String.class).get());
+        session.setSeq(LiMapUtil.getTypeObject(response, KeyConstant.SEQ, String.class).get());
+        session.setType(LiMapUtil.getTypeObject(response, KeyConstant.TYPE, String.class).get());
+        return response;
     }
 
 
