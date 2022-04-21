@@ -1,5 +1,8 @@
 package com.pccc.sip.ivrclient.bean;
 
+import com.pccc.sip.ivrclient.util.SpringUtil;
+import org.springframework.core.env.Environment;
+
 public class SessionData {
 
     private String callid;
@@ -115,18 +118,22 @@ public class SessionData {
             this.type = type;
             return this;
         }
+
         public Builder seq(String seq) {
             this.seq = seq;
             return this;
         }
+
         public Builder next(String next) {
-            this.next = next;
+            this.next = SpringUtil.getBean(Environment.class).getProperty("ivrStartUrl." + next);
             return this;
         }
+
         public Builder request(InputProtocol request) {
             this.request = request;
             return this;
         }
+
         public Builder response(OutputProtocol response) {
             response.setCallid(this.callid);
             this.response = response;
@@ -134,7 +141,7 @@ public class SessionData {
         }
 
         public SessionData build() {
-            return new SessionData(callid,type,seq,next,request,response);
+            return new SessionData(callid, type, seq, next, request, response);
         }
     }
 }

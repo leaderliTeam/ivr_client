@@ -1,15 +1,17 @@
 package com.pccc.sip.ivrclient.core;
 
 import com.pccc.sip.ivrclient.bean.InputProtocol;
+import com.pccc.sip.ivrclient.bean.SessionData;
 import com.pccc.sip.ivrclient.bean.ivr.*;
 import com.pccc.sip.ivrclient.constant.ProtocolConstant;
 
 public class ProtocolFactory {
 
-    public static AbstractProtocol createProtocol(String type) {
-        switch (type) {
+    public static AbstractProtocol createProtocol(SessionData session) {
+        InputProtocol request = session.getRequest();
+        switch (session.getType()) {
             case ProtocolConstant.START:
-                return new StartProtocol();
+                return new StartProtocol(request.getAni(),request.getDnis(),request.getCallid());
             case ProtocolConstant.EVENT:
                 return new EventProtocol();
             case ProtocolConstant.SELECT:
